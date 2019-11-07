@@ -5,6 +5,7 @@ import 'react-table/react-table.css';
 import {confirmAlert} from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import AddUser from './AddUser.js';
+import Login from './Login.js';
 import {CSVLink} from 'react-csv';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -13,17 +14,19 @@ import SnackBar from '@material-ui/core/SnackBar';
 class Userlist extends Component{
     constructor(props){
         super(props);
-        this.state = {users: [], open: false, message: ''};
+        this.state = {users: [], open: false, message: '', isAuthenticated: false};
     }
-
-    
 
     componentDidMount(){
         this.fetchUsers();
     }
 
     onDelClick = (link) => {
-        fetch(link, {method:'DELETE'})
+        const token = sessionStorage.getItem("jwt");
+        fetch(link, {
+            method:'DELETE',
+            headers: {'Authorization': token}
+        })
         .then(res => {
             this.setState({open: true, message: 'Car deleted'});
             this.fetchUsers();
@@ -49,11 +52,13 @@ class Userlist extends Component{
     }
 
     addUser(user){
+        const token = sessionStorage.getItem("jwt");
         fetch(SERVER_URL + 'api/users', 
         {
             method: 'POST',
             headers:{
                 'Content-Type': 'application/json',
+                'Authorization': token
             },
             body: JSON.stringify(user)
         })
@@ -80,10 +85,12 @@ class Userlist extends Component{
     }
 
     updateUser(user, link){
+        const token = sessionStorage.getItem("jwt");
         fetch(link,
         {method:'PUT',
             headers: {
                 'Content-type': 'application/json',
+                'Authorization': token
             },
             body: JSON.stringify(user)
         })
@@ -96,7 +103,10 @@ class Userlist extends Component{
     }
 
     fetchUsers = () => {
-        fetch(SERVER_URL + 'api/users')
+        const token = sessionStorage.getItem("jwt");
+        fetch(SERVER_URL + 'api/users',{
+                headers:{'Authorization':token}
+            })
             .then((response) => response.json())
             .then((responseData) => {
                 this.setState({
@@ -109,6 +119,12 @@ class Userlist extends Component{
     handleClose = (event, reason) => {
         this.setState({open: false});
     }
+
+    logout = () => {
+        sessionStorage.removeItem("jwt");
+        this.setState({isAuthenticated: false});
+    }
+
 
     render(){
         const columns = [
@@ -157,6 +173,11 @@ class Userlist extends Component{
             }
         ]
 
+        const token = sessionStorage.getItem("jwt");
+        if(token === null){
+            return (<Login />);
+        }
+
         return(
             <div className = "App">
                 <Grid container>
@@ -166,14 +187,15 @@ class Userlist extends Component{
                     <Grid item style={{padding: 20}}>
                         <CSVLink data={this.state.users} separot=";">Export CSV</CSVLink>
                     </Grid>
-                    
+                    <Button variant="text" color="primary"
+                        onClick={()=>{this.logout()}}>Logout</Button>
                 </Grid>
                 <ReactTable data={this.state.users} columns={columns} filterable={true}/>
                 <SnackBar style={{width:300, color:'green'}}
                             open={this.state.open} onClose={this.handleClose}
                             autoHideDuration={1500} message={this.state.message}/>
             </div>
-        );
+        );  
     }
 }
 
