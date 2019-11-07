@@ -23,10 +23,10 @@ public class User {
     private String gender;
 
     @Column(name = "birthday", nullable = false)
-    private long birthday;
+    private Long birthday;
 
     @Column(name = "date_registered", nullable = false)
-    private long dateRegistered;
+    private Long dateRegistered;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonIgnore
@@ -34,7 +34,7 @@ public class User {
 
     public User(){}
 
-    public User(String firstName, String lastName, String address, String gender, long birthday, long dateRegistered) {
+    public User(String firstName, String lastName, String address, String gender, Long birthday, Long dateRegistered) {
         super();
         this.firstName = firstName;
         this.lastName = lastName;
@@ -88,7 +88,7 @@ public class User {
         return birthday;
     }
 
-    public void setBirthday(long birthday) {
+    public void setBirthday(Long birthday) {
         this.birthday = birthday;
     }
 
@@ -96,7 +96,7 @@ public class User {
         return dateRegistered;
     }
 
-    public void setDateRegistered(long dateRegistered) {
+    public void setDateRegistered(Long dateRegistered) {
         this.dateRegistered = dateRegistered;
     }
 }

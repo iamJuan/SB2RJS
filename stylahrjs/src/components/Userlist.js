@@ -2,17 +2,21 @@ import React, {Component} from 'react';
 import { SERVER_URL } from '../constants';
 import ReactTable from "react-table";
 import 'react-table/react-table.css';
-import {ToastContainer, toast} from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import {confirmAlert} from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import AddUser from './AddUser.js';
+import {CSVLink} from 'react-csv';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import SnackBar from '@material-ui/core/SnackBar';
 
 class Userlist extends Component{
     constructor(props){
         super(props);
-        this.state = {users: []};
+        this.state = {users: [], open: false, message: ''};
     }
+
+    
 
     componentDidMount(){
         this.fetchUsers();
@@ -21,15 +25,11 @@ class Userlist extends Component{
     onDelClick = (link) => {
         fetch(link, {method:'DELETE'})
         .then(res => {
-            toast.success("User deleted", {
-                position: toast.POSITION.BOTTOM_LEFT
-            });
+            this.setState({open: true, message: 'Car deleted'});
             this.fetchUsers();
         })
         .catch(err => {
-            toast.error("Error when deleting",{
-                position: toast.POSITION.BOTTOM_LEFT
-            });
+            this.setState({open: true, message: 'Error when deleting'});
             console.error(err);
         })
     }
@@ -61,6 +61,40 @@ class Userlist extends Component{
         .catch(err => console.error(err))
     }
 
+    renderEditable = (cellInfo) =>{
+        return(
+            <div style={{backgroundColor: "#fafafa"}}
+            contentEditable
+            suppressContentEditableWarning
+            onBlur={e=>{
+                const data = [...this.state.users];
+                data[cellInfo.index][cellInfo.column.id] =
+                e.target.innerHTML;
+                this.setState({users: data});
+            }}
+            dangerouslySetInnerHTML={{
+                __html: this.state.users[cellInfo.index][cellInfo.column.id]
+            }}
+            />
+        );
+    }
+
+    updateUser(user, link){
+        fetch(link,
+        {method:'PUT',
+            headers: {
+                'Content-type': 'application/json',
+            },
+            body: JSON.stringify(user)
+        })
+        .then( res=>
+            this.setState({open: true, message: 'Changes saved'})
+        )
+        .catch(err=>
+            this.setState({open: true, message: 'Error when saving'})
+        )
+    }
+
     fetchUsers = () => {
         fetch(SERVER_URL + 'api/users')
             .then((response) => response.json())
@@ -72,20 +106,45 @@ class Userlist extends Component{
             .catch(err => console.err(err));
     }
 
+    handleClose = (event, reason) => {
+        this.setState({open: false});
+    }
+
     render(){
         const columns = [
             {
                 Header: 'First Name',
-                accessor: 'firstName'
+                accessor: 'firstName',
+                Cell: this.renderEditable
             },{
                 Header: 'Last Name',
-                accessor: 'lastName'
+                accessor: 'lastName',
+                Cell: this.renderEditable
             },{
                 Header: 'Address',
-                accessor: 'address'
+                accessor: 'address',
+                Cell: this.renderEditable
             },{
                 Header: 'Gender',
-                accessor: 'gender'
+                accessor: 'gender',
+                Cell: this.renderEditable
+            },{
+                Header: 'Birthday',
+                accessor: 'birthday',
+                Cell: this.renderEditable
+            },{
+                Header: 'Date Registered',
+                accessor: 'dateRegistered',
+                Cell: this.renderEditable
+            },{
+                id: 'savebutton',
+                sortable: false,
+                filterable: false,
+                width: 100,
+                accessor: '_links.self.href',
+                Cell: ({value, row}) => 
+                (<Button variant="text" color="primary"
+                    onClick={()=>{this.updateUser(row, value)}}>Save</Button>)
             },{
                 id: 'delbutton',
                 sortable: false,
@@ -93,16 +152,26 @@ class Userlist extends Component{
                 width: 100,
                 accessor: '_links.self.href',
                 Cell: ({value}) => 
-                (<button onClick={()=>{this.confirmDelete(value)}}>Delete</button>)
+                (<Button variant="text" color="secondary"
+                    onClick={()=>{this.confirmDelete(value)}}>Delete</Button>)
             }
         ]
 
         return(
             <div className = "App">
-               <AddUser addUser = {this.addUser} fetchUsers={this.fetchUsers}/>
-               <ReactTable data={this.state.users} columns={columns}
-               filterable={true}/>
-               <ToastContainer autoClose={1500}/>
+                <Grid container>
+                    <Grid item>
+                        <AddUser addUser = {this.addUser} fetchUsers={this.fetchUsers}/>
+                    </Grid>
+                    <Grid item style={{padding: 20}}>
+                        <CSVLink data={this.state.users} separot=";">Export CSV</CSVLink>
+                    </Grid>
+                    
+                </Grid>
+                <ReactTable data={this.state.users} columns={columns} filterable={true}/>
+                <SnackBar style={{width:300, color:'green'}}
+                            open={this.state.open} onClose={this.handleClose}
+                            autoHideDuration={1500} message={this.state.message}/>
             </div>
         );
     }

@@ -26,7 +26,7 @@ public class LoginRepositoryTest {
 
     @Test
     public void test_saveLogin() {
-        User user = new User("John","Aparejado","Orani, Bataan", "Male", 19880921, 20190203);
+        User user = new User("John","Aparejado","Orani, Bataan", "Male", 19880921L, 20190203L);
         entityManager.persistAndFlush(user);
         Login login = new Login("juan21", "$2y$12$4/hK8p2hRXjrmUEmyimFIORobjKciyUmOTqwQZMDbQJf8qhPIXmzG", "ADMIN", user);
 
@@ -36,7 +36,7 @@ public class LoginRepositoryTest {
 
     @Test
     public void test_deleteLogin() {
-        User user = new User("John","Aparejado","Orani, Bataan", "Male", 19880921, 20190203);
+        User user = new User("John","Aparejado","Orani, Bataan", "Male", 19880921L, 20190203L);
         entityManager.persistAndFlush(user);
 
         Login login = new Login("juan21", "$2y$12$4/hK8p2hRXjrmUEmyimFIORobjKciyUmOTqwQZMDbQJf8qhPIXmzG", "ADMIN", user);

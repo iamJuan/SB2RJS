@@ -1,5 +1,7 @@
 import React from 'react';
 import SkyLight from 'react-skylight';
+import Button from '@material-ui/core/Button';
+import { TextField } from '@material-ui/core';
 
 class AddUser extends React.Component{
     constructor(props){
@@ -36,25 +38,28 @@ class AddUser extends React.Component{
                 <SkyLight hideOnOverlayClicked ref="addDialog">
                     <h3>New User</h3>
                     <form>
-                        <input type="text" placeholder="First Name" name="firstName" 
+                        <TextField label="First_Name" placeholder="First Name" name="firstName" 
                             onChange={this.handleChange}/><br/>
-                        <input type="text" placeholder="Last Name" name="lastName" 
+                        <TextField label="Last_Name" placeholder="Last Name" name="lastName" 
                             onChange={this.handleChange}/><br/>
-                        <input type="text" placeholder="Gender" name="gender" 
+                        <TextField label="Gender" placeholder="Gender" name="gender" 
                             onChange={this.handleChange}/><br/>
-                        <input type="text" placeholder="Address" name="address" 
+                        <TextField label="Address" placeholder="Address" name="address" 
                             onChange={this.handleChange}/><br/>
-                        <input type="text" placeholder="BirthDay" name="birthday" 
+                        <TextField label="Birthday" placeholder="BirthDay" name="birthday" 
                             onChange={this.handleChange}/><br/>
-                        <input type="text" placeholder="Date Registered" name="dateRegistered" 
+                        <TextField label="Date_Registered" placeholder="Date Registered" name="dateRegistered" 
                             onChange={this.handleChange}/><br/>
-                        <button onClick={this.handleSubmit}>Save</button>
-                        <button onClick={this.cancelSubmit}>Cancel</button>
+                        <Button variant="contained" color="primary" 
+                            onClick={this.handleSubmit}>Save</Button>
+                        <Button variant="contained" color="secondary" 
+                            onClick={this.cancelSubmit}>Cancel</Button>
                     </form>
                 </SkyLight>
                 <div>
-                    <button style={{'margin': '10px'}}
-                    onClick={()=> this.refs.addDialog.show()}>New User</button>
+                    <Button variant="contained" color="primary"
+                    style={{'margin': '10px'}}
+                    onClick={()=> this.refs.addDialog.show()}>New User</Button>
                 </div>
             </div>
         );
